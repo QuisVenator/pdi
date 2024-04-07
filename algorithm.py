@@ -9,7 +9,7 @@ import numpy as np
 def get_separate_point(hist, total_pixels):
     gray_level_maximum_range = hist.shape[0]
     total_sum = sum([ hist[i][0] * i for i in range(gray_level_maximum_range)])
-    return math.ceil(total_sum / total_pixels)
+    return math.floor(total_sum / total_pixels)
 
 def get_min_gray_level(hist):
     for i in range(hist.shape[0]):
@@ -25,9 +25,9 @@ def get_max_gray_level(hist):
 
     return -1
 
-def quantify_hist(hist, pl_1, pl_2, pl_3):
+def quantify_hist(hist, pl_1, pl_2, pl_3, start, end):
     quantified_hist = np.zeros_like(hist)
-    for i in range(len(hist)):
+    for i in range(start, end):
         count = hist[i][0]
         if count <= pl_1:
             quantified_hist[i][0] = pl_1
@@ -41,7 +41,9 @@ def quantify_hist(hist, pl_1, pl_2, pl_3):
 
 
 
-image_gray = cv2.imread('image_from_paper.png', cv2.IMREAD_GRAYSCALE)
+image_gray = cv2.imread('40.png', cv2.IMREAD_GRAYSCALE)
+
+gif_kiss = cv2.VideoCapture('kiss.gif')
 
 # Verificar si la imagen se ha cargado correctamente
 if image_gray is None:
@@ -62,6 +64,8 @@ total_pixels = image_gray.shape[0] * image_gray.shape[1]
 
 sp = get_separate_point(hist, total_pixels)
 
+print("SP", sp)
+
 # Subdivimos el histograma original en dos, uno donde niveles de grises son menores a sp
 # y otro donde los niveles de grises son mayores a sp
 low_sub_hist = hist[:sp + 1]
@@ -74,6 +78,12 @@ high_sub_hist_total_pixels = np.sum(high_sub_hist)
 high_sub_shift = sp + 1
 high_sub_hist_sp = get_separate_point(high_sub_hist, high_sub_hist_total_pixels) + high_sub_shift
 
+print(high_sub_hist.shape)
+print(low_sub_hist.shape)
+
+
+print("SPL", low_sub_hist_sp)
+print("SPH", high_sub_hist_sp)
 
 # Calculamos los ratios de niveles de gris (gr) del subhistograma inferior y superior
 gr_low_2 = (sp - low_sub_hist_sp) / (sp - min_gray_level)
@@ -125,8 +135,8 @@ print("PH2", pl_high_2)
 print("PH3", pl_high_3)
 
 # Cuantificamos los subhistogramas a partir de los limites de plateau obtenidos
-low_sub_hist_quantified = quantify_hist(low_sub_hist, pl_low_1, pl_low_2, pl_low_3)
-high_sub_hist_quantified = quantify_hist(high_sub_hist, pl_high_1, pl_high_2, pl_high_3)
+low_sub_hist_quantified = quantify_hist(low_sub_hist, pl_low_1, pl_low_2, pl_low_3, min_gray_level, sp)
+high_sub_hist_quantified = quantify_hist(high_sub_hist, pl_high_1, pl_high_2, pl_high_3, 0, max_gray_level - high_sub_shift)
 
 low_sub_hist_quantified_total_pixels = low_sub_hist_quantified.sum()
 high_sub_hist_quantified_total_pixels = high_sub_hist_quantified.sum()
@@ -167,8 +177,8 @@ plt.show()
 # Procedemos a calcular la imagen ecualizada
 
 # Acá no tengo claro si esta función está bien, ya que en el paper en ningún momento se utiliza la variable k
-cdf_low = lambda k: sum([ low_sub_hist_quantified[i][0] / low_sub_hist_quantified_total_pixels  for i in range(min_gray_level, k + 1)])
-cdf_high = lambda k : sum([ high_sub_hist_quantified[i][0] / high_sub_hist_quantified_total_pixels  for i in range(k - high_sub_shift , max_gray_level + 1 - high_sub_shift)])
+cdf_low = lambda k: sum([ low_sub_hist_quantified[i][0] / low_sub_hist_quantified_total_pixels  for i in range(k + 1)])
+cdf_high = lambda k : sum([ high_sub_hist_quantified[i][0] / high_sub_hist_quantified_total_pixels  for i in range(k + 1 - high_sub_shift)])
 
 
 # Calculamos la transformación de los niveles de grises aplicar a la imagen
@@ -187,6 +197,7 @@ for i in range(transformed_image.shape[0]):
         transformed_image[i][j] = new_gray_level
 
 
+cv2.imwrite("40_gray_transformed.png", transformed_image)
 cv2.imshow("Imagen original", image_gray)
 cv2.imshow('Imagen ecualizada', transformed_image)
 cv2.waitKey(0)
