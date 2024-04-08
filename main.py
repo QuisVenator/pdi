@@ -41,7 +41,7 @@ if __name__ == '__main__':
     # Crear el archivo CSV de salida
     output_csv = os.path.join(output_dir, 'metrics.csv')
     f = open(output_csv, 'w')
-    f.write(',original,,,,histograma paper,,,,histograma tradicional,,,,CLAHE\n')
+    f.write(',histograma paper,,,,histograma tradicional,,,,CLAHE\n')
     f.write('imagen,AMBE,PSNR,entropia,contraste,AMBE,PSNR,entropia,contraste,AMBE,PSNR,entropia,contraste\n')
     
     images = os.listdir(input_dir)
