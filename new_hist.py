@@ -181,6 +181,8 @@ def new_his_eq(image_gray):
     low_sub_hist_quantified_total_pixels = low_sub_hist_quantified[min_gray_level:].sum()
     high_sub_hist_quantified_total_pixels = high_sub_hist_quantified[:max_gray_level+1].sum()
 
+    #creo que debe ser high_sub_hist_quantified_total_pixels = high_sub_hist_quantified[:max_gray_level - sp].sum()
+
     if DEBUG:
         # Mosramos el histograma original, los límites de plateau y el histograma cuantificado de cada subhistograma
         plt.plot(hist)

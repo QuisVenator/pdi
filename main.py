@@ -41,8 +41,8 @@ if __name__ == '__main__':
     # Crear el archivo CSV de salida
     output_csv = os.path.join(output_dir, 'metrics.csv')
     f = open(output_csv, 'w')
-    f.write(',histograma paper,,,,histograma tradicional,,,,CLAHE\n')
-    f.write('imagen,AMBE,PSNR,entropia,contraste,AMBE,PSNR,entropia,contraste,AMBE,PSNR,entropia,contraste\n')
+    f.write('original,,,histograma paper,,,,histograma tradicional,,,,CLAHE\n')
+    f.write('imagen,entropia,contraste,AMBE,PSNR,entropia,contraste,AMBE,PSNR,entropia,contraste,AMBE,PSNR,entropia,contraste\n')
     
     images = os.listdir(input_dir)
     images = [image for image in images if image.endswith('.jpg')]
@@ -71,6 +71,8 @@ if __name__ == '__main__':
 
         # Calcular métricas
         metrics = []
+        metrics.append(calculate_entropy(image_gray))
+        metrics.append(calculate_contrast(image_gray))
         metrics.append(calculate_ambe(image_gray, new_hist_eq))
         metrics.append(calculate_psnr(image_gray, new_hist_eq))
         metrics.append(calculate_entropy(new_hist_eq))
