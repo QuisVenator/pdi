@@ -74,14 +74,6 @@ def quantify_hist(hist, pl_1, pl_2, pl_3, start=0, end=256):
             quantified_hist[i][0] = pl_3
     return quantified_hist
 
-
-image_gray = cv2.imread('40.png', cv2.IMREAD_GRAYSCALE)
-
-# Verificar si la imagen se ha cargado correctamente
-if image_gray is None:
-    print("Error: la imagen no se pudo cargar. Verifica la ruta del archivo.")
-    exit(1)
-
 def new_his_eq(image_gray):
     """Aplica la ecualización nueva de histograma a una imagen en escala de grises.
 
